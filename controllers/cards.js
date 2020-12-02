@@ -7,7 +7,7 @@ const pathToFile = path.join(__dirname, '..', 'data', 'cards.json');
 function getCards(req, res) {
   return readFile(pathToFile)
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => res.status(500).send({ status: 500, message: err.message }));
 }
 
 module.exports = getCards;

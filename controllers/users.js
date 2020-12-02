@@ -6,7 +6,7 @@ const pathToFile = path.join(__dirname, '..', 'data', 'users.json');
 function getUsers(req, res) {
   return readFile(pathToFile)
     .then((users) => res.status(200).send(users))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => res.status(500).send({ status: 500, message: err.message }));
 }
 
 function getUSerProfile(req, res) {
