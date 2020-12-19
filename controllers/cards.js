@@ -1,12 +1,14 @@
 const Card = require('../models/card');
 
-const ERROR_CODE_BAD_REQUEST = 400;
-const ERROR_CODE_ISE = 500;
-const ERROR_CODE_NOT_FOUND = 404;
-const ValidationError = 'Ошибка валидации.';
-const InternalServerError = 'На сервере произошла ошибка.';
-const InvalidIdError = 'Невалидный id.';
-const IdNotFoundError = 'Нет карточки с таким id.';
+const {
+  ERROR_CODE_BAD_REQUEST,
+  ERROR_CODE_ISE,
+  ERROR_CODE_NOT_FOUND,
+  VALIDATION_ERROR_MESSAGE,
+  INTERNAL_SERVER_ERROR_MESSAGE,
+  INVALID_ID_ERROR_MESSAGE,
+  CARD_NOT_FOUND_ERROR_MESSAGE,
+} = require('../utils/constants');
 
 function getCards(req, res) {
   Card.find({})
@@ -20,9 +22,9 @@ function createCard(req, res) {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: ValidationError });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: VALIDATION_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
@@ -36,13 +38,13 @@ function deleteCard(req, res) {
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: InvalidIdError });
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: INVALID_ID_ERROR_MESSAGE });
       }
       if (err.statusCode === ERROR_CODE_NOT_FOUND) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: IdNotFoundError });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: CARD_NOT_FOUND_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
@@ -60,13 +62,13 @@ function likeCard(req, res) {
     })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: InvalidIdError });
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: INVALID_ID_ERROR_MESSAGE });
       }
       if (err.statusCode === ERROR_CODE_NOT_FOUND) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: IdNotFoundError });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: CARD_NOT_FOUND_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
@@ -84,13 +86,13 @@ function dislikeCard(req, res) {
     })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: InvalidIdError });
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: INVALID_ID_ERROR_MESSAGE });
       }
       if (err.statusCode === ERROR_CODE_NOT_FOUND) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: IdNotFoundError });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: CARD_NOT_FOUND_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 

@@ -1,12 +1,14 @@
 const User = require('../models/user');
 
-const ERROR_CODE_BAD_REQUEST = 400;
-const ERROR_CODE_ISE = 500;
-const ERROR_CODE_NOT_FOUND = 404;
-const ValidationError = 'Ошибка валидации.';
-const InternalServerError = 'На сервере произошла ошибка.';
-const InvalidIdError = 'Невалидный id.';
-const IdNotFoundError = 'Нет пользователя с таким id.';
+const {
+  ERROR_CODE_BAD_REQUEST,
+  ERROR_CODE_ISE,
+  ERROR_CODE_NOT_FOUND,
+  VALIDATION_ERROR_MESSAGE,
+  INTERNAL_SERVER_ERROR_MESSAGE,
+  INVALID_ID_ERROR_MESSAGE,
+  USER_NOT_FOUND_ERROR_MESSAGE,
+} = require('../utils/constants');
 
 function getUsers(req, res) {
   User.find({})
@@ -26,13 +28,13 @@ function getUSerProfile(req, res) {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: InvalidIdError });
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: INVALID_ID_ERROR_MESSAGE });
       }
       if (err.statusCode === ERROR_CODE_NOT_FOUND) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: IdNotFoundError });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: USER_NOT_FOUND_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
@@ -42,9 +44,9 @@ function createUser(req, res) {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: ValidationError });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: VALIDATION_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
@@ -59,18 +61,25 @@ function updateProfile(req, res) {
     {
       new: true,
       runValidators: true,
-      upsert: true,
     },
   )
+    .orFail(() => {
+      const err = new Error();
+      err.statusCode = ERROR_CODE_NOT_FOUND;
+      throw err;
+    })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: InvalidIdError });
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: INVALID_ID_ERROR_MESSAGE });
       }
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: ValidationError });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: VALIDATION_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      if (err.statusCode === ERROR_CODE_NOT_FOUND) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: USER_NOT_FOUND_ERROR_MESSAGE });
+      }
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
@@ -79,17 +88,24 @@ function updateAvatar(req, res) {
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
     runValidators: true,
-    upsert: true,
   })
+    .orFail(() => {
+      const err = new Error();
+      err.statusCode = ERROR_CODE_NOT_FOUND;
+      throw err;
+    })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: InvalidIdError });
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: INVALID_ID_ERROR_MESSAGE });
       }
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: ValidationError });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: VALIDATION_ERROR_MESSAGE });
       }
-      return res.status(ERROR_CODE_ISE).send({ message: InternalServerError });
+      if (err.statusCode === ERROR_CODE_NOT_FOUND) {
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: USER_NOT_FOUND_ERROR_MESSAGE });
+      }
+      return res.status(ERROR_CODE_ISE).send({ message: INTERNAL_SERVER_ERROR_MESSAGE });
     });
 }
 
